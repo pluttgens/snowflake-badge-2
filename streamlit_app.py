@@ -4,8 +4,6 @@ import pandas as pd
 import snowflake.connector
 from urllib.error import URLError
 
-cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
-
 
 def get_fruity_vice_date(fruit_choice):
     fruityvice_response = requests.get(
@@ -63,10 +61,15 @@ except URLError as e:
 
 streamlit.header("The fruit load list contains:")
 if streamlit.button("Get Fruit Load List"):
+    cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
     my_data_rows = get_fruit_load_list()
     streamlit.dataframe(my_data_rows)
+    cnx.close()
 
 
 add_my_fruit = streamlit.text_input("What fruit would you like to add?")
 if streamlit.button("Add Fruit Load List"):
-    streamlit.text(insert_row_snowflake(add_my_fruit))
+    cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
+    return_message = insert_row_snowflake(add_my_fruit)
+    streamlit.text(return_message)
+    cnx.close()
